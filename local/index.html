@@ -1,0 +1,45 @@
+<html>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+	<head><title>Library Mangement</title></head>
+
+
+	<body>
+		<center>
+			<h1>Library Management</h1>
+			<div class="body-panel">
+				<h2>Insert New Book Info</h2>
+				<div class="form-holder">
+					<form action="http://localhost:5050/insert" method="POST">
+						<div class="control">
+							<label for="name">Book Title</label>
+							<input type="text" name="name" />
+						</div>
+						<div class="control">
+							<label for="author">Author</label>
+							<input type="text" name="author" />
+						</div>
+						<div class="control">
+							<label for="publisher">Publisher</label>
+							<input type="text" name="publisher" />
+						</div>
+						<div class="control">
+							<label for="isbn">ISBN</label>
+							<input type="text" name="isbn" />
+						</div>
+						<div class="control">
+							<label for="volume">Volume</label>
+							<input type="number" name="volume" />
+						</div>
+						<div id="div-submit" >
+							<input id="btn-submit" type="submit"/>
+						</div>
+						
+					</form>
+				</div>
+			</div>
+
+
+		</center>
+	</body>
+
+</html>
