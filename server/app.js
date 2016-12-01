@@ -1,75 +1,82 @@
-var MongoClient = require('mongodb').MongoClient;
-var assert = require('assert');
-var express = require('express');
-var bodyParser = require('body-parser');
-var fs = require('fs');
-var app     = express();
+const MongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const app = express();
+const path = require('path');
 
-var url = 'mongodb://localhost:27017/LibraryManagement';
-MongoClient.connect(url, function(err, db) {
-  assert.equal(null, err);
-  console.log("Connected correctly to server.");
-  var cursor =db.collection('book').find( );
-   cursor.each(function(err, doc) {
-      assert.equal(err, null);
-      if (doc != null) {
-         // console.log(doc);
-      }
+//System Related Configs
+const dir="/Users/prabraja/Documents/Others/LibraryManagement/local/" //Local URL for Front End
+const url = 'mongodb://localhost:27017/LibraryManagement';  //MongoDB URL
 
-	  db.close();
-   });
-});
+const mime = {
+    html: 'text/html',
+    txt: 'text/plain',
+    css: 'text/css',
+    gif: 'image/gif',
+    jpg: 'image/jpeg',
+    png: 'image/png',
+    svg: 'image/svg+xml',
+    js: 'application/javascript'
+};
 
 app.use(bodyParser.urlencoded({ extended: true })); 
 
-//app.use(express.bodyParser());
-app.get('/insert', function(req, res) {
-    fs.readFile("./local/index.html",'utf8',function(err, data) {
-      console.log("File Read!");
-        res.writeHead(200, {
-            'content-type': 'text/html'
-        });
-        console.log(data);
-        res.write(data);
-        res.end();
+//For Getting All HTML, CSS, JS, Images etc., from the server
+app.get('*', function (req, res) {
+    var file = path.join(dir, req.path.replace(/\/$/, '/index.html'));
+    var type = mime[path.extname(file).slice(1)] || 'text/plain';
+    var s = fs.createReadStream(file);
+    s.on('open', function () {
+        res.set('Content-Type', type);
+        s.pipe(res);
     });
-    
+    s.on('error', function () {
+        res.set('Content-Type', 'text/plain');
+        res.status(404).end('Not found');
+    });
 });
 
+//For inserting a book Info
 app.post('/insert', function(req, res) {
-  console.log(req.body);
-  MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    console.log("Connected correctly to server.");
-    var cursor =db.collection('book').insert(req.body);
-    db.close();
-    res.send('Book Inserted!')
-  });
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        var cursor =db.collection('book').insert(req.body);
+        db.close();
+        res.send('Book Inserted!')
+    });
 });
 
-app.get('/list', function(req, res) {
-    console.log('list');
+// For searching Books
+app.post('/search', function(req, res) {
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        
+        var data = req.body, searchData = [];
 
+        for (key in data) {
+            var currData = {};
+            currData[key] = new RegExp(data[key],"ig");
+            searchData.push(currData);
+        }
+
+        if(searchData.length>1)
+            searchData = {'$and' : searchData}
+        else
+            searchData = searchData[0];
+
+        collection = db.collection('book');
+        collection.find(searchData).toArray(function(error, documents) {
+            if (err) throw error;
+            res.send(documents);
+            db.close();
+        });
+    });
 });
+
 
 app.listen(5050, function() {
-  console.log('Server running at http://127.0.0.1:8080/');
+    console.log('Server running at http://127.0.0.1:5050/');
 });
 
-function processAllFieldsOfTheForm(req, res) {
-    var form = new formidable.IncomingForm();
-
-    form.parse(req, function (err, fields, files) {
-        //Store the data from the fields in your data store.
-        //The data store could be a file or database or any other store based
-        //on your application.
-        res.writeHead(200, {
-            'content-type': 'text/plain'
-        });
-        res.write('received the data:\n\n');
-        res.end(util.inspect({
-            fields: fields,
-            files: files
-        }));
-    });
-}

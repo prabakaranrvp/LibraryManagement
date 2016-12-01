@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<title>Library Mangement</title>
+		<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="/css/style.css">
+		<script src="/js/jquery-3.1.1.min.js"></script>
+		<script src="/js/underscore-min.js"></script>
+		<script src="/js/bootstrap.min.js"></script>
+
+		<script>
+			$(document).ready(function() {
+				$.post('/search',{}, function(data) {
+					var data = _.sortBy(data, 'name');
+					console.log(data);
+					for(var i=0; i<data.length; i++) {
+						var tdHtml = "";
+						tdHtml += "<td>" + (i+1) + "</td>";
+						tdHtml += "<td>" + data[i]['name'] + "</td>";
+						tdHtml += "<td>" + data[i]['author'] + "</td>";
+						tdHtml += "<td>" + data[i]['isbn'] + "</td>";
+						tdHtml += "<td>" + data[i]['volume'] + "</td>";
+						tdHtml += "<td>" + data[i]['quantity'] + "</td>";
+						tdHtml += "<td>" + data[i]['curr_quantity'] + "</td>";
+						tdHtml += "<td>Edit / Delete</td>";
+						var trHtml = "<tr id='" + data[i]['_id'] + "'>" + tdHtml + "</tr>";
+						console.log(trHtml);
+						$("tbody").append(trHtml);
+					}
+				});
+			});
+		</script>
+
+	</head>
+	<body>
+		<center>
+			<h1>List</h1>
+			<table class="table table-hover table-responsive">
+				<thead>
+					<th>#</th>
+					<th>Book Name</th>
+					<th>Author</th>
+					<th>ISBN</th>
+					<th>Volume</th>
+					<th>Total Quantity</th>
+					<th>Available Quantity</th>
+					<th>Options</th>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</center>
+	</body>
+
+</html>
