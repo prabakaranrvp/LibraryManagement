@@ -1,0 +1,71 @@
+<script>
+    (function() {
+
+        $("#txt-search-book").keyup(function() {
+
+            if($("#txt-search-book").val() != "")
+                $(".table-search").removeClass("hide");
+            else 
+                $(".table-search").addClass("hide");
+
+            $("tbody").html("");
+            $(".no-result").addClass("hide");
+
+            var bookName = $(this).val();
+            var postData = {name :  bookName};
+            console.log(postData.name);
+
+            if (postData.name != "") {
+                $.post('/search',postData, function(data, data2, data3) {
+                    console.log(data);
+                    console.log(data2);
+                    console.log(data3);
+                    if (data.length > 0) {
+                        $(".table-search").removeClass("hide");
+                        for(var i=0; i<data.length; i++) {
+                            var tdHtml = "";
+                            tdHtml += "<td>" + (i+1) + "</td>";
+                            tdHtml += "<td>" + data[i]['name'] + "</td>";
+                            tdHtml += "<td>" + data[i]['author'] + "</td>";
+                            // tdHtml += "<td>" + data[i]['isbn'] + "</td>";
+                            // tdHtml += "<td>" + data[i]['volume'] + "</td>";
+                            // tdHtml += "<td>" + data[i]['quantity'] + "</td>";
+                            // tdHtml += "<td>" + data[i]['curr_quantity'] + "</td>";
+                            // tdHtml += "<td>Edit / Delete</td>";
+                            var trHtml = "<tr id='" + data[i]['_id'] + "'>" + tdHtml + "</tr>";
+                            console.log(trHtml);
+                            $("tbody").append(trHtml);
+                        } 
+                    }
+                    else {
+                        $(".table-search").addClass("hide");
+                        $(".no-result").removeClass("hide");
+                    }
+                });
+            }
+        });
+    })();
+</script>
+
+
+
+<div class="input-group input-group-lg">
+    <span class="input-group-addon" id="sizing-addon1"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
+    <input type="text" id="txt-search-book" class="form-control" placeholder="Search Books" aria-describedby="sizing-addon1">
+</div>
+
+<table class="table table-hover table-responsive table-search hide">
+    <thead>
+        <th>#</th>
+        <th>Book Name</th>
+        <th>Author</th>
+        <!-- <th>ISBN</th> -->
+        <!-- <th>Volume</th> -->
+        <!-- <th>Total Quantity</th> -->
+        <!-- <th>Available Quantity</th> -->
+        <!-- <th>Options</th> -->
+    </thead>
+    <tbody></tbody>
+</table>
+<!-- <div class="no-result hide"> No result </div> -->
+<label class="col-sm-2 control-label no-result hide">No Result </label>

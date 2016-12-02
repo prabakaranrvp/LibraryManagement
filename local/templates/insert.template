@@ -1,0 +1,68 @@
+<script>
+    (function() {
+        $("#frm-book-insert").submit(function(event){
+            event.preventDefault();
+            $("#created_date").val((new Date()).toString());
+            $("#curr_quantity").val($("#quantity").val());
+            $.post('/insert', $("#frm-book-insert").serializeArray(), function() {
+                alert("Book Succesfully Inserted");
+                $("#frm-book-insert")[0].reset();
+            });
+        });
+    })();
+</script>
+
+
+<div class="body-panel">
+    <div class="form-holder">
+        <form action="http://localhost:5050/insert" method="POST" id="frm-book-insert" class="form-horizontal">
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="name">Book Title</label>
+                <div class="col-sm-8">
+                <input type="text" name="name" id="name" class="form-control" />
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="author">Author</label>
+                <div class="col-sm-8">
+                <input type="text" name="author" id="author" class="form-control"/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="publisher">Publisher</label>
+                <div class="col-sm-8">
+                <input type="text" name="publisher" id="publisher" class="form-control"/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="isbn">ISBN</label>
+                <div class="col-sm-8">
+                <input type="text" name="isbn" id="isbn" class="form-control"/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="volume">Volume</label>
+                <div class="col-sm-8">
+                <input type="number" name="volume" id="volume" class="form-control"/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="quantity">Total Quantity</label>
+                <div class="col-sm-8">
+                <input type="number" name="quantity" id="quantity" class="form-control"/>
+                </div>
+            </div>
+            <input type="hidden" name="curr_quantity" id="curr_quantity" />
+            <input type="hidden" name="created_by" id="created_by" value="Admin" />
+            <input type="hidden" name="created_date" id="created_date" />
+            <input type="hidden" name="available" id="available" value="Y" />
+            <div class="control form-group text-right div-btn-group">
+                <input id="btn-reset" class="btn btn-grey" type="reset"/>
+            <!-- </div> -->
+            <!-- <div class="control form-group"> -->
+                <input id="btn-submit" class="btn btn-primary" type="submit"/>
+            </div>
+            
+        </form>
+    </div>
+</div>
