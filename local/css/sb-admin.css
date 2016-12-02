@@ -10,7 +10,22 @@ body {
     margin-top: 100px;
     background-color: #222;
 }
+.body-panel {
+    width: 50%;
+    margin: auto;
+}
 
+.btn-grey, .btn-grey:visited, .btn-grey:active, .btn-grey:focus {
+    color: #fff;
+    background: #555;
+}
+.btn-grey:hover {
+    background: #777;
+    color: #fff;
+}
+.div-btn-group {
+    width: 94%;
+}
 @media(min-width:768px) {
     body {
         margin-top: 50px;
@@ -23,14 +38,18 @@ body {
 
 #page-wrapper {
     width: 100%;
+    min-height: 800px;
     padding: 0;
     background-color: #fff;
+    float: right;
+    height: 90%;
+    overflow-x: auto;
 }
 
 .huge {
     font-size: 50px;
     line-height: normal;
-}
+} 
 
 @media(min-width:768px) {
     #wrapper {
@@ -38,7 +57,7 @@ body {
     }
 
     #page-wrapper {
-        padding: 10px;
+        padding: 10px 10px 0 10px;
     }
 }
 
@@ -228,7 +247,7 @@ ul.alert-dropdown {
 
 footer {
     position: fixed;
-    height: 30px;
+    height: 4%;
     width: 100%;
     z-index: 3;
     bottom: 0;
@@ -237,4 +256,56 @@ footer {
     padding: 5px 0;
     box-sizing: border-box;
     color: #999;
+    background-color: #eee;
+}
+
+table {
+    max-height: 400px;
+    overflow-x: auto;
+}
+
+.search-container {
+    text-align: right;
+    margin: 10px 5px;
+}
+
+.search-container span {
+    color: #999;
+}
+
+.search-container input {
+    display: inline-block;
+    vertical-align: middle;
+    width: 30%;
+    max-width: 200px;
+    margin-left: 10px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+#ul-book-search {
+    position: absolute;
+    width: 93%;
+    z-index: 5;
+}
+
+#ul-book-search li.current {
+    background-color: #eee;
+}
+
+table td {
+    vertical-align: middle!important;
+}
+
+td .fa {
+    font-size: 1.5em;
+    padding: 5px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+td .fa-trash {
+    color: #930;
 }

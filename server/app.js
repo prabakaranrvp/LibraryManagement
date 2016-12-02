@@ -1,4 +1,5 @@
 const MongoClient = require('mongodb').MongoClient;
+const ObjectId = require('mongodb').ObjectId;
 const assert = require('assert');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -7,7 +8,7 @@ const app = express();
 const path = require('path');
 
 //System Related Configs
-const dir="/Users/prabraja/Documents/Others/LibraryManagement/local/" //Local URL for Front End
+const dir = '/Users/prabraja/Documents/Others/LibraryManagement/local/' //Local URL for Front End
 const url = 'mongodb://localhost:27017/LibraryManagement';  //MongoDB URL
 
 const mime = {
@@ -18,7 +19,8 @@ const mime = {
     jpg: 'image/jpeg',
     png: 'image/png',
     svg: 'image/svg+xml',
-    js: 'application/javascript'
+    js: 'application/javascript',
+    template: 'text/html',
 };
 
 app.use(bodyParser.urlencoded({ extended: true })); 
@@ -44,7 +46,17 @@ app.post('/insert', function(req, res) {
         assert.equal(null, err);
         var cursor =db.collection('book').insert(req.body);
         db.close();
-        res.send('Book Inserted!')
+        res.send('Book Inserted!');
+    });
+});
+
+//For inserting a Entry
+app.post('/entry', function(req, res) {
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        var cursor =db.collection('entries').insert(req.body);
+        db.close();
+        res.send('Entry Inserted!');
     });
 });
 
@@ -71,6 +83,17 @@ app.post('/search', function(req, res) {
             if (err) throw error;
             res.send(documents);
             db.close();
+        });
+    });
+});
+
+// For Updating Book Info
+app.post('/updateBook', function(req, res) {
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        db.collection('book').update({"_id" : ObjectId(req.body.id)},{$set : req.body.setter}, function() {
+            db.close();
+            res.send('Book Updated!');
         });
     });
 });

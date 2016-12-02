@@ -1,0 +1,45 @@
+<script>
+    var books;
+    (function() {
+        $.post('/search',{}, function(data) {
+            var data = _.sortBy(data, 'name');
+            books = $.parseJSON(JSON.stringify(data));
+            updateCount();
+            for(var i=0; i<data.length; i++) {
+                var tdHtml = "";
+                tdHtml += "<td>" + (i+1) + "</td>";
+                tdHtml += "<td>" + data[i]['name'] + "</td>";
+                tdHtml += "<td>" + data[i]['author'] + "</td>";
+                tdHtml += "<td class='text-center'>" + (data[i]['isbn'] || "-") + "</td>";
+                tdHtml += "<td class='text-center'>" + (data[i]['volume'] || "-") + "</td>";
+                tdHtml += "<td class='text-center'>" + (data[i]['quantity'] || "-") + "</td>";
+                tdHtml += "<td class='text-center'>" + (data[i]['curr_quantity'] || "-") + "</td>";
+                tdHtml += "<td class='text-center'><i class='fa fa-edit' title='edit' aria-hidden='true'></i>  <i class='fa fa-trash' aria-hidden='true' title='delete'></i></td>";
+                var trHtml = "<tr id='" + data[i]['_id'] + "'>" + tdHtml + "</tr>";
+                $("tbody").append(trHtml);
+            }
+        });
+    })();
+
+    var updateCount = function() {
+        $("#list-count").html(books.length);
+    }
+</script>
+
+<div class="row search-container">
+    <span>Listing <span id="list-count"></span> Books</span>
+    <input type="search" class="form-control" placeholder="Search List..." />
+</div>
+<table class="table table-hover table-responsive">
+    <thead>
+        <th>#</th>
+        <th>Book Name</th>
+        <th>Author</th>
+        <th class='text-center'>ISBN</th>
+        <th class='text-center'>Volume</th>
+        <th class='text-center'>Total Quantity</th>
+        <th class='text-center'>Available Quantity</th>
+        <th class='text-center'>Options</th>
+    </thead>
+    <tbody></tbody>
+</table>
