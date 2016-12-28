@@ -16,7 +16,7 @@ In Command Prompt,
 	db.createCollection('entries')
 	
 
-**Strat Node Server**
+**Start Node Server**
 
 	cd <Target Folder of the project>/server
 	node app.js
