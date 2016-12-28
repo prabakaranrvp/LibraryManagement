@@ -10,6 +10,7 @@ const path = require('path');
 //System Related Configs
 const dir = '/Users/prabraja/Documents/Others/LibraryManagement/local/' //Local URL for Front End
 const url = 'mongodb://localhost:27017/LibraryManagement';  //MongoDB URL
+const dueDay = 15;
 
 const mime = {
     html: 'text/html',
@@ -49,6 +50,19 @@ app.post('/insert', function(req, res) {
         res.send('Book Inserted!');
     });
 });
+
+
+//For Updating a book Info
+app.post('/edit', function(req, res) {
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        req.body._id = ObjectId(req.body._id);
+        var cursor =db.collection('book').save(req.body);
+        db.close();
+        res.send('Book Updated!');
+    });
+});
+
 
 //For inserting a Entry
 app.post('/entry', function(req, res) {
@@ -98,6 +112,57 @@ app.post('/updateBook', function(req, res) {
     });
 });
 
+// Delete a Book
+app.post('/deleteBook', function(req, res) {
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        db.collection('book').remove({"_id" : ObjectId(req.body.id)}, function() {
+            db.close();
+            res.send('Book Deleted!');
+        });
+    });
+});
+
+// Get a Book
+app.post('/getBook', function(req, res) {
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        db.collection('book').find({"_id" : ObjectId(req.body.id)}).toArray(function(error, documents) {
+            if (err) throw error;
+            res.send(documents);
+            db.close();
+        });
+    });
+});
+
+// Get the Entries
+app.post('/getEntries', function(req, res) {   
+    var bookStartDate = new Date(), bookEndDate = new Date(), searchQuery = {};
+    bookStartDate.setHours(0, 0, 0, 0);
+    bookEndDate.setHours(0, 0, 0, 0);
+    bookStartDate.setDate(bookStartDate.getDate()-(dueDay+1));
+    bookEndDate.setDate(bookEndDate.getDate()-dueDay);
+    bookStartDate = bookStartDate.toString();
+    bookEndDate = bookEndDate.toString();
+    if(parseInt(req.body.due) == -1) {
+        searchQuery = {$lte : bookStartDate};
+    }
+    else if(parseInt(req.body.due) == 0) {
+        searchQuery = {$lte : bookEndDate, $gte : bookStartDate};
+    }
+    else {
+        searchQuery = {$gte : bookEndDate};
+    }
+    console.log(searchQuery);
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        db.collection('entries').find({"bookdate" : searchQuery}).toArray(function(error, documents) {
+            if (err) throw error;
+            res.send(documents);
+            db.close();
+        });
+    });
+});
 
 app.listen(5050, function() {
     console.log('Server running at http://127.0.0.1:5050/');

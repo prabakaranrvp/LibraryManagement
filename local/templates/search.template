@@ -67,5 +67,4 @@
     </thead>
     <tbody></tbody>
 </table>
-<!-- <div class="no-result hide"> No result </div> -->
 <label class="col-sm-2 control-label no-result hide">No Result </label>
