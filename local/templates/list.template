@@ -1,12 +1,15 @@
 <script>
     var books;
-    (function() {
+    (function lister() {
         $.post('/search',{}, function(data) {
             var data = _.sortBy(data, 'name');
             books = $.parseJSON(JSON.stringify(data));
             updateCount();
+            $("tbody").empty();
             for(var i=0; i<data.length; i++) {
                 var tdHtml = "";
+                var txtKeyWord = data[i]['name'] + ' ' + data[i]['author'];
+                data[i]['keyword'] = txtKeyWord;
                 tdHtml += "<td>" + (i+1) + "</td>";
                 tdHtml += "<td>" + data[i]['name'] + "</td>";
                 tdHtml += "<td>" + data[i]['author'] + "</td>";
@@ -15,9 +18,52 @@
                 tdHtml += "<td class='text-center'>" + (data[i]['quantity'] || "-") + "</td>";
                 tdHtml += "<td class='text-center'>" + (data[i]['curr_quantity'] || "-") + "</td>";
                 tdHtml += "<td class='text-center'><i class='fa fa-edit' title='edit' aria-hidden='true'></i>  <i class='fa fa-trash' aria-hidden='true' title='delete'></i></td>";
-                var trHtml = "<tr id='" + data[i]['_id'] + "'>" + tdHtml + "</tr>";
+                var trHtml = "<tr id='" + data[i]['_id'] + "' data-keyword='" + txtKeyWord + "''>" + tdHtml + "</tr>";
                 $("tbody").append(trHtml);
             }
+            books = $.parseJSON(JSON.stringify(data));
+
+            $('.fa-trash').click(function() {
+                var that = this;
+                bootbox.confirm({
+                    title : " <i class='fa fa-trash' aria-hidden='true' title='delete'></i> Delete",
+                    message : "Are you sure? You want to delete the book? <br/> You can not undo this",
+                    callback : function(result) {
+                        if(result) {
+                            var bookId = $(that).parent().parent().attr('id');
+                            var bookName = $(that).parent().parent().find('td:eq(1)').text();
+                            $.post('/deleteBook', {id : bookId}, function() {
+                                $.notify({
+                                    title : "<i class='fa fa-trash' aria-hidden='true' title='delete'></i> <strong>Deleted!</strong>",
+                                    message : '"' + bookName + '" was deleted from the books'
+                                },{type : "danger"});
+                                lister();
+                            });
+                        }
+                    }
+                });
+            });
+
+            $('.fa-edit').click(function() {
+                var id = $(this).closest("tr").attr("id");
+                window.location.href="#edit/" + id;
+
+            });
+
+            $('#search-list-item').keyup(function(){
+                var inputKey = $('#search-list-item').val().toLowerCase();
+                var resultData = _.filter(books,function(row){
+                    if ((row.keyword).toLowerCase().indexOf(inputKey)>=0)
+                        return true;
+                });
+                $('tbody tr').addClass('hide');
+                var trIds = _.pluck(resultData,'_id');
+                console.log(trIds.length);
+                $("#list-count").html(trIds.length);
+                for (var i=0; i<trIds.length; i++){
+                    $('#'+trIds[i]).removeClass('hide');
+                }
+            });
         });
     })();
 
@@ -28,7 +74,7 @@
 
 <div class="row search-container">
     <span>Listing <span id="list-count"></span> Books</span>
-    <input type="search" class="form-control" placeholder="Search List..." />
+    <input id="search-list-item" type="search" class="form-control" placeholder="Search List..." />
 </div>
 <table class="table table-hover table-responsive">
     <thead>

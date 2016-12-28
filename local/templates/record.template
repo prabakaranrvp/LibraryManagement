@@ -60,12 +60,23 @@
             event.preventDefault();
             if(($('#studentid').val()).length>0 ){
                 $("#created_date").val((new Date()).toString());
-                $.post('/entry', $("#frm-entry-insert").serializeArray(), function() {
+                var bookName = $('#name').val(), studentName = $('#studentnm').val(), bookDate = new Date($('#bookdate').val());
+                var postData = $("#frm-entry-insert").serializeArray();
+                postData = _.without(postData,_.findWhere(postData,{name:"bookdate"}));
+                postData.push({
+                    name: "bookdate",
+                    value : bookDate.toString()
+                });
+                $.post('/entry', postData, function() {
                     var updateData = {'id' : $('#book_id').val(), 'setter' : {'curr_quantity' : (parseInt(currAvailability)-1).toString()}};
-                    console.log(updateData);
+
                     $.post('/updateBook',updateData, function(){
-                        alert("Entry Succesfully Inserted");
+                        $.notify({
+                            title : "<i class='fa fa-check-circle' aria-hidden='true'></i> <strong>Success!</strong>",
+                            message : 'Entry Created for "' + bookName + '" - ' + studentName
+                        },{type : "success"});
                         $("#frm-entry-insert")[0].reset();
+                        $('#bookdate')[0].valueAsDate = new Date();
                     });
                 });
             }

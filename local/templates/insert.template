@@ -4,8 +4,12 @@
             event.preventDefault();
             $("#created_date").val((new Date()).toString());
             $("#curr_quantity").val($("#quantity").val());
+            var bookName = $('#name').val();
             $.post('/insert', $("#frm-book-insert").serializeArray(), function() {
-                alert("Book Succesfully Inserted");
+                $.notify({
+                    title : "<i class='fa fa-check-circle' aria-hidden='true'></i> <strong>Success!</strong>",
+                    message : 'New Book Added - "' + bookName + '"'
+                },{type : "success"});
                 $("#frm-book-insert")[0].reset();
             });
         });
