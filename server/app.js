@@ -1,6 +1,6 @@
-const MongoClient = require('mongodb').MongoClient;
-const ObjectId = require('mongodb').ObjectId;
-const assert = require('assert');
+//const MongoClient = require('mongodb').MongoClient;
+// const ObjectId = require('mongodb').ObjectId;
+// const assert = require('assert');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -53,24 +53,24 @@ app.post('/insert', function(req, res) {
 
 //For Updating a book Info
 app.post('/edit', function(req, res) {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        req.body._id = ObjectId(req.body._id);
-        var cursor =db.collection('book').save(req.body);
-        db.close();
-        res.send('Book Updated!');
-    });
+    // MongoClient.connect(url, function(err, db) {
+    //     assert.equal(null, err);
+    //     req.body._id = ObjectId(req.body._id);
+    //     var cursor =db.collection('book').save(req.body);
+    //     db.close();
+    //     res.send('Book Updated!');
+    // });
 });
 
 
 //For inserting a Entry
 app.post('/entry', function(req, res) {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        var cursor =db.collection('entries').insert(req.body);
-        db.close();
-        res.send('Entry Inserted!');
-    });
+    // MongoClient.connect(url, function(err, db) {
+    //     assert.equal(null, err);
+    //     var cursor =db.collection('entries').insert(req.body);
+    //     db.close();
+    //     res.send('Entry Inserted!');
+    // });
 });
 
 // For searching Books
@@ -129,36 +129,36 @@ app.post('/search', function(req, res) {
 
 // For Updating Book Info
 app.post('/updateBook', function(req, res) {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        db.collection('book').update({"_id" : ObjectId(req.body.id)},{$set : req.body.setter}, function() {
-            db.close();
-            res.send('Book Updated!');
-        });
-    });
+    // MongoClient.connect(url, function(err, db) {
+    //     assert.equal(null, err);
+    //     db.collection('book').update({"_id" : ObjectId(req.body.id)},{$set : req.body.setter}, function() {
+    //         db.close();
+    //         res.send('Book Updated!');
+    //     });
+    // });
 });
 
 // Delete a Book
 app.post('/deleteBook', function(req, res) {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        db.collection('book').remove({"_id" : ObjectId(req.body.id)}, function() {
-            db.close();
-            res.send('Book Deleted!');
-        });
-    });
+    // MongoClient.connect(url, function(err, db) {
+    //     assert.equal(null, err);
+    //     db.collection('book').remove({"_id" : ObjectId(req.body.id)}, function() {
+    //         db.close();
+    //         res.send('Book Deleted!');
+    //     });
+    // });
 });
 
 // Get a Book
 app.post('/getBook', function(req, res) {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        db.collection('book').find({"_id" : ObjectId(req.body.id)}).toArray(function(error, documents) {
-            if (err) throw error;
-            res.send(documents);
-            db.close();
-        });
-    });
+    // MongoClient.connect(url, function(err, db) {
+    //     assert.equal(null, err);
+    //     db.collection('book').find({"_id" : ObjectId(req.body.id)}).toArray(function(error, documents) {
+    //         if (err) throw error;
+    //         res.send(documents);
+    //         db.close();
+    //     });
+    // });
 });
 
 // Get the Entries
@@ -180,14 +180,14 @@ app.post('/getEntries', function(req, res) {
         searchQuery = {$gte : bookEndDate};
     }
     console.log(searchQuery);
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        db.collection('entries').find({"bookdate" : searchQuery}).toArray(function(error, documents) {
-            if (err) throw error;
-            res.send(documents);
-            db.close();
-        });
-    });
+    // MongoClient.connect(url, function(err, db) {
+    //     assert.equal(null, err);
+    //     db.collection('entries').find({"bookdate" : searchQuery}).toArray(function(error, documents) {
+    //         if (err) throw error;
+    //         res.send(documents);
+    //         db.close();
+    //     });
+    // });
 });
 
 app.listen(5050, function() {
