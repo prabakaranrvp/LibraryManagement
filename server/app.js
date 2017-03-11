@@ -3,9 +3,11 @@ const ObjectId = require('mongodb').ObjectId;
 const assert = require('assert');
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
 const app = express();
+const fs = require('fs');
 const path = require('path');
+const db = require('./dbUtil');
+const _ = require('underscore');
 
 //System Related Configs
 const dir = '/Users/prabraja/Documents/Others/LibraryManagement/local/' //Local URL for Front End
@@ -43,11 +45,8 @@ app.get('*', function (req, res) {
 
 //For inserting a book Info
 app.post('/insert', function(req, res) {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        var cursor =db.collection('book').insert(req.body);
-        db.close();
-        res.send('Book Inserted!');
+    db.insert('book', req.body, function() {
+        res.sendStatus(200);
     });
 });
 
@@ -76,30 +75,57 @@ app.post('/entry', function(req, res) {
 
 // For searching Books
 app.post('/search', function(req, res) {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        
-        var data = req.body, searchData = [];
-
-        for (key in data) {
-            var currData = {};
-            currData[key] = new RegExp(data[key],"ig");
-            searchData.push(currData);
+    var bookData = new Array();
+    var self = this;
+    db.readTable('book', function(tableData) {
+        bookData = (tableData.length>0)?JSON.parse(tableData):bookData;
+        var data = req.body;
+        var filteredData = bookData;
+        if(!_.isEmpty(data)) {
+            filteredData = _.filter(bookData, function(row) {            
+                for (key in row) {
+                    if(data[key]!=undefined) {
+                        var searchExp = new RegExp(data[key],"ig");
+                        if((((row[key]).toString().toLowerCase()).indexOf((data[key]).toLowerCase()))>=0) {
+                            return true;
+                            break;
+                        }
+                    }
+                }
+            });
         }
-
-        if(searchData.length>1)
-            searchData = {'$and' : searchData}
-        else
-            searchData = searchData[0];
-
-        collection = db.collection('book');
-        collection.find(searchData).toArray(function(error, documents) {
-            if (err) throw error;
-            res.send(documents);
-            db.close();
-        });
+        
+        console.log(filteredData);
+        res.send(filteredData);
     });
 });
+
+// // For searching Books
+// app.post('/search', function(req, res) {
+//     MongoClient.connect(url, function(err, db) {
+//         assert.equal(null, err);
+        
+//         var data = req.body, searchData = [];
+
+//         for (key in data) {
+//             var currData = {};
+//             currData[key] = new RegExp(data[key],"ig");
+//             searchData.push(currData);
+//         }
+
+//         if(searchData.length>1)
+//             searchData = {'$and' : searchData}
+//         else
+//             searchData = searchData[0];
+
+//         collection = db.collection('book');
+//         collection.find(searchData).toArray(function(error, documents) {
+//             if (err) throw error;
+//             res.send(documents);
+//             db.close();
+//         });
+//     });
+// });
 
 // For Updating Book Info
 app.post('/updateBook', function(req, res) {
