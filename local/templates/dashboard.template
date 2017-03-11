@@ -1,0 +1,48 @@
+<script>
+	(function() {
+		$.post('/getEntries', {due:-1}, function(data) {
+			populateList('#ul-list-overdue','Past Due',data);
+		});
+		$.post('/getEntries', {due:0}, function(data) {
+			populateList('#ul-list-due-today','Due Today',data);
+		});
+		$.post('/getEntries', {due:5}, function(data) {
+			populateList('#ul-list-due-later','Due in 5 Days',data);
+		});
+	})();
+
+	var populateList = function(id, title, data) {
+		console.log(data);
+		$(id).empty();
+		var titleLi = document.createElement('li');
+		titleLi.className = 'list-group-item active';
+		titleLi.innerHTML = title;
+		$(id).append(titleLi);
+		for(var i=0; i<data.length; i++) {
+			var li = document.createElement('li');
+			li.className = 'list-group-item list-group-item-';
+			if(id == '#ul-list-overdue')
+				li.className += 'danger';
+			else if(id == '#ul-list-due-today')
+				li.className += 'warning';
+			else 
+				li.className += 'info';
+			li.innerHTML = data[i]['name'] + ' - ' + data[i]['studentnm'];
+			$(id).append(li);
+		}
+		if(data.length==0) {
+			var li = document.createElement('li');
+			li.className = 'list-group-item';
+			li.innerHTML = 'No Data';
+			$(id).append(li);
+		}
+
+	};
+</script>
+
+
+<div>
+	<ul class="list-group" id="ul-list-overdue"></ul>
+	<ul class="list-group" id="ul-list-due-today"></ul>
+	<ul class="list-group" id="ul-list-due-later"></ul>
+</div>
