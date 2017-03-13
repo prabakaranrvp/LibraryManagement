@@ -1,0 +1,24 @@
+{
+  "name": "librarymanagement",
+  "version": "1.0.0",
+  "description": "A simple Library Management using NodeJS",
+  "main": "server/app.js",
+  "scripts": {
+    "init": "node server/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prabakaranrvp/LibraryManagement.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prabakaranrvp/LibraryManagement/issues"
+  },
+  "homepage": "https://github.com/prabakaranrvp/LibraryManagement#readme",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "underscore": "^1.8.3"
+  }
+}
