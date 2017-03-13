@@ -11,7 +11,7 @@ const loadTemplate = function() {
 	var titleElem = $('.side-nav').find("a[href='" + currHash.split('/')[0] + "']");
 	$(titleElem).parent().addClass('active');
 	$('.page-header').text($(titleElem).text());
-	$.get('/templates/'+ currHash.split('/')[0].replace('#','') +'.template',{}, function(data) {
+	$.get('/local/templates/'+ currHash.split('/')[0].replace('#','') +'.template',{}, function(data) {
 		$('#div-main-container').html(data);
 	});
 }

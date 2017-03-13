@@ -8,7 +8,7 @@
             $('#book_id').val(this.id);
             $('#name').val('').trigger('keyup').val(this.innerHTML);
             currAvailability = $(this).attr('data-availablity');
-            $('#studentid').focus();
+            $('#refid').focus();
         });
         $('#name').keyup(function(e){
             e.preventDefault();
@@ -56,11 +56,16 @@
             }
         });
 
+        $('#entryfor').change(function() {
+
+        });
+
         $("#frm-entry-insert").submit(function(event){
             event.preventDefault();
-            if(($('#studentid').val()).length>0 ){
+            if(($('#refid').val()).length>0 ){
                 $("#created_date").val((new Date()).toString());
-                var bookName = $('#name').val(), studentName = $('#studentnm').val(), bookDate = new Date($('#bookdate').val());
+                var bookName = $('#name').val(), studentName = $('#refnm').val(), bookDate = new Date($('#bookdate').val());
+                $('#waitingperiod').val(config.waitingPeriod[$('#entryfor').val()]);
                 var postData = $("#frm-entry-insert").serializeArray();
                 postData = _.without(postData,_.findWhere(postData,{name:"bookdate"}));
                 postData.push({
@@ -68,8 +73,7 @@
                     value : bookDate.toString()
                 });
                 $.post('/entry', postData, function() {
-                    var updateData = {'id' : $('#book_id').val(), 'setter' : {'curr_quantity' : (parseInt(currAvailability)-1).toString()}};
-
+                    var updateData = {'_id' : $('#book_id').val(), 'curr_quantity' : (parseInt(currAvailability)-1).toString()};
                     $.post('/updateBook',updateData, function(){
                         $.notify({
                             title : "<i class='fa fa-check-circle' aria-hidden='true'></i> <strong>Success!</strong>",
@@ -97,15 +101,36 @@
                 </div>
             </div>
             <div class="control form-group">
-                <label class="col-sm-3 control-label" for="studentid">Student ID</label>
+                <label class="col-sm-3 control-label" for="entryfor">Entry Type</label>
                 <div class="col-sm-8">
-                <input type="text" name="studentid" id="studentid" class="form-control"/>
+                <select type="text" name="entryfor" id="entryfor" class="form-control">
+                    <option value="student" selected="true">Student</option>
+                    <option value="teacher">Teacher</option>
+                </select>
                 </div>
             </div>
             <div class="control form-group">
-                <label class="col-sm-3 control-label" for="studentnm">Student Name</label>
+                <label class="col-sm-3 control-label" for="refid">ID</label>
                 <div class="col-sm-8">
-                <input type="text" name="studentnm" id="studentnm" class="form-control"/>
+                <input type="text" name="refid" id="refid" class="form-control"/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="refnm">Name</label>
+                <div class="col-sm-8">
+                <input type="text" name="refnm" id="refnm" class="form-control"/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="standard">Standard</label>
+                <div class="col-sm-8">
+                <input type="text" name="standard" id="standard" class="form-control"/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="section">Section</label>
+                <div class="col-sm-8">
+                <input type="text" name="section" id="section" class="form-control"/>
                 </div>
             </div>
             <div class="control form-group">
@@ -120,7 +145,8 @@
                 <input id="btn-reset" class="btn btn-grey" type="reset"/>
                 <input id="btn-submit" class="btn btn-primary" type="submit"/>
             </div>
-            
+            <input type='hidden' name='status' value='open' />
+            <input type='hidden' name='waitingperiod' id='waitingperiod' />
         </form>
     </div>
 </div>

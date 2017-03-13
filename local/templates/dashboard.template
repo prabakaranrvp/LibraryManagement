@@ -27,7 +27,7 @@
 				li.className += 'warning';
 			else 
 				li.className += 'info';
-			li.innerHTML = data[i]['name'] + ' - ' + data[i]['studentnm'];
+			li.innerHTML = data[i]['name'] + ' - ' + data[i]['refnm'];
 			$(id).append(li);
 		}
 		if(data.length==0) {

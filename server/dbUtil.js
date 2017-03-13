@@ -51,13 +51,44 @@ module.exports = {
         var jsonData = new Array();
         var self = this;
         this.readTable(table, function(tableData) {
-            // jsonData = (tableData.length>0)?JSON.parse(tableData):jsonData;
-            var ids = _.pluck(recordset._id);
-            console.log(ids);
-            // _.findWhere()
-
-            
-            // self.writeTable(table, JSON.stringify(jsonData), callback);
+            tableData = (tableData.length>0)?JSON.parse(tableData):tableData;
+            tableData = (tableData.length==undefined)?(new Array()).push(tableData):tableData;
+            var ids = _.pluck(tableData, '_id');
+            recordset._id = parseInt(recordset._id);
+            tableData = _.without(tableData,_.findWhere(tableData,{'_id' : recordset._id}));
+            tableData.push(recordset);
+            self.writeTable(table, JSON.stringify(tableData), callback);
         });
-    }
+    },
+
+    updatePartialy: function(table, recordset, callback) {
+        var self = this;
+        this.readTable(table, function(tableData) {
+            tableData = (tableData.length>0)?JSON.parse(tableData):tableData;
+            tableData = (tableData.length==undefined)?(new Array()).push(tableData):tableData;
+            var ids = _.pluck(tableData, '_id');
+            recordset._id = parseInt(recordset._id);
+            _.each(tableData, function(row) {
+                if(recordset._id == row._id) {
+                    for (key in recordset) {
+                        if(key != "_id")
+                            row[key] = recordset[key];
+                    }
+                }
+            });
+            self.writeTable(table, JSON.stringify(tableData), callback);
+        });
+    },
+
+    deleteRecord: function(table, id, callback) {
+        var self = this;
+        this.readTable(table, function(tableData) {
+            tableData = (tableData.length>0)?JSON.parse(tableData):tableData;
+            tableData = (tableData.length==undefined)?(new Array()).push(tableData):tableData;
+            tableData = _.without(tableData,_.findWhere(tableData,{'_id':parseInt(id)}));
+            self.writeTable(table, JSON.stringify(tableData), callback);
+        });
+    },
+
+
 }

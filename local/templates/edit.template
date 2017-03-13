@@ -5,9 +5,9 @@
         edit_book_ID = edit_book_ID.trim();
         console.log(edit_book_ID);
         $.post('/getBook',{id : edit_book_ID},function(data) {
-            console.log(data[0]);
-            for (key in data[0]) {
-                $("input[name='" + key + "']").val(data[0][key]);
+            console.log(data);
+            for (key in data) {
+                $("input[name='" + key + "']").val(data[key]);
             }
         }); 
     }

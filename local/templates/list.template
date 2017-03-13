@@ -8,7 +8,7 @@
             $("tbody").empty();
             for(var i=0; i<data.length; i++) {
                 var tdHtml = "";
-                var txtKeyWord = data[i]['name'] + ' ' + data[i]['author'];
+                var txtKeyWord = data[i]['name'] + ' ' + data[i]['author'] + ' ' + data[i]['isbn'];
                 data[i]['keyword'] = txtKeyWord;
                 tdHtml += "<td>" + (i+1) + "</td>";
                 tdHtml += "<td>" + data[i]['name'] + "</td>";

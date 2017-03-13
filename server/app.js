@@ -1,17 +1,20 @@
 //const MongoClient = require('mongodb').MongoClient;
 // const ObjectId = require('mongodb').ObjectId;
 // const assert = require('assert');
+const config = require('../config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const fs = require('fs');
 const path = require('path');
+const exec = require('child_process').exec;
 const db = require('./dbUtil');
 const _ = require('underscore');
 
+
+
 //System Related Configs
-const dir = '/Users/prabraja/Documents/Others/LibraryManagement/local/' //Local URL for Front End
-const url = 'mongodb://localhost:27017/LibraryManagement';  //MongoDB URL
+const dir = config.path //Local URL for Front End
 const dueDay = 15;
 
 const mime = {
@@ -30,7 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //For Getting All HTML, CSS, JS, Images etc., from the server
 app.get('*', function (req, res) {
-    var file = path.join(dir, req.path.replace(/\/$/, '/index.html'));
+    var file = path.join(dir, req.path.replace(/\/$/, '/local/index.html'));
     var type = mime[path.extname(file).slice(1)] || 'text/plain';
     var s = fs.createReadStream(file);
     s.on('open', function () {
@@ -53,24 +56,17 @@ app.post('/insert', function(req, res) {
 
 //For Updating a book Info
 app.post('/edit', function(req, res) {
-    // MongoClient.connect(url, function(err, db) {
-    //     assert.equal(null, err);
-    //     req.body._id = ObjectId(req.body._id);
-    //     var cursor =db.collection('book').save(req.body);
-    //     db.close();
-    //     res.send('Book Updated!');
-    // });
+    db.update('book', req.body, function() {
+        res.send('Book Updated!');
+    });
 });
 
 
 //For inserting a Entry
 app.post('/entry', function(req, res) {
-    // MongoClient.connect(url, function(err, db) {
-    //     assert.equal(null, err);
-    //     var cursor =db.collection('entries').insert(req.body);
-    //     db.close();
-    //     res.send('Entry Inserted!');
-    // });
+    db.insert('entry', req.body, function() {
+        res.send('success');
+    });
 });
 
 // For searching Books
@@ -94,48 +90,15 @@ app.post('/search', function(req, res) {
                 }
             });
         }
-        
-        console.log(filteredData);
         res.send(filteredData);
     });
 });
 
-// // For searching Books
-// app.post('/search', function(req, res) {
-//     MongoClient.connect(url, function(err, db) {
-//         assert.equal(null, err);
-        
-//         var data = req.body, searchData = [];
-
-//         for (key in data) {
-//             var currData = {};
-//             currData[key] = new RegExp(data[key],"ig");
-//             searchData.push(currData);
-//         }
-
-//         if(searchData.length>1)
-//             searchData = {'$and' : searchData}
-//         else
-//             searchData = searchData[0];
-
-//         collection = db.collection('book');
-//         collection.find(searchData).toArray(function(error, documents) {
-//             if (err) throw error;
-//             res.send(documents);
-//             db.close();
-//         });
-//     });
-// });
-
 // For Updating Book Info
 app.post('/updateBook', function(req, res) {
-    // MongoClient.connect(url, function(err, db) {
-    //     assert.equal(null, err);
-    //     db.collection('book').update({"_id" : ObjectId(req.body.id)},{$set : req.body.setter}, function() {
-    //         db.close();
-    //         res.send('Book Updated!');
-    //     });
-    // });
+    db.updatePartialy('book', req.body, function() {
+        res.send('Book Updated!');
+    });
 });
 
 // Delete a Book
@@ -147,39 +110,65 @@ app.post('/deleteBook', function(req, res) {
     //         res.send('Book Deleted!');
     //     });
     // });
+    db.deleteRecord('book', req.body.id, function() {
+        res.send('Book Updated!');
+    });
 });
 
 // Get a Book
 app.post('/getBook', function(req, res) {
-    // MongoClient.connect(url, function(err, db) {
-    //     assert.equal(null, err);
-    //     db.collection('book').find({"_id" : ObjectId(req.body.id)}).toArray(function(error, documents) {
-    //         if (err) throw error;
-    //         res.send(documents);
-    //         db.close();
-    //     });
-    // });
+    var self = this;
+    db.readTable('book', function(tableData) {
+        tableData = (tableData.length>0)?JSON.parse(tableData):tableData;
+        tableData = (tableData.length==undefined)?(new Array()).push(tableData):tableData;
+        res.send(_.findWhere(tableData,{"_id": parseInt(req.body.id)}));
+    });
 });
 
 // Get the Entries
-app.post('/getEntries', function(req, res) {   
-    var bookStartDate = new Date(), bookEndDate = new Date(), searchQuery = {};
-    bookStartDate.setHours(0, 0, 0, 0);
-    bookEndDate.setHours(0, 0, 0, 0);
-    bookStartDate.setDate(bookStartDate.getDate()-(dueDay+1));
-    bookEndDate.setDate(bookEndDate.getDate()-dueDay);
-    bookStartDate = bookStartDate.toString();
-    bookEndDate = bookEndDate.toString();
-    if(parseInt(req.body.due) == -1) {
-        searchQuery = {$lte : bookStartDate};
-    }
-    else if(parseInt(req.body.due) == 0) {
-        searchQuery = {$lte : bookEndDate, $gte : bookStartDate};
-    }
-    else {
-        searchQuery = {$gte : bookEndDate};
-    }
-    console.log(searchQuery);
+app.post('/getEntries', function(req, res) {  
+    db.readTable('entry', function(tableData) {
+        tableData = (tableData.length>0)?JSON.parse(tableData):tableData;
+        tableData = (tableData.length==undefined)?(new Array()).push(tableData):tableData;
+        var filteredData = _.where(tableData,{"status": 'open'});
+
+        filteredData = (filteredData.length==undefined)?[filteredData]:filteredData;
+        var today = new Date();
+        var dueBookData = _.filter(filteredData, function(row) {
+            var bookDate = new Date(row.bookdate);
+            bookDate.setDate(bookDate.getDate()+parseInt(row.waitingperiod));
+            var diff = Math.floor((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(bookDate.getFullYear(), bookDate.getMonth(), bookDate.getDate()) ) /(1000 * 60 * 60 * 24));
+            if((parseInt(req.body.due) == -1) && (diff>0)) {
+                return true;
+            }
+            else if((parseInt(req.body.due) == 0) && (diff==0)) {
+                return true;
+            }
+            else if((parseInt(req.body.due) == 5) && (diff>0) && (diff<5)) {
+                return true;
+            }
+        });
+
+        res.send(dueBookData);
+        // 
+    }); 
+    // var bookStartDate = new Date(), bookEndDate = new Date(), searchQuery = {};
+    // bookStartDate.setHours(0, 0, 0, 0);
+    // bookEndDate.setHours(0, 0, 0, 0);
+    // bookStartDate.setDate(bookStartDate.getDate()-(dueDay+1));
+    // bookEndDate.setDate(bookEndDate.getDate()-dueDay);
+    // bookStartDate = bookStartDate.toString();
+    // bookEndDate = bookEndDate.toString();
+    // if(parseInt(req.body.due) == -1) {
+    //     searchQuery = {$lte : bookStartDate};
+    // }
+    // else if(parseInt(req.body.due) == 0) {
+    //     searchQuery = {$lte : bookEndDate, $gte : bookStartDate};
+    // }
+    // else {
+    //     searchQuery = {$gte : bookEndDate};
+    // }
+    // console.log(searchQuery);
     // MongoClient.connect(url, function(err, db) {
     //     assert.equal(null, err);
     //     db.collection('entries').find({"bookdate" : searchQuery}).toArray(function(error, documents) {
@@ -192,5 +181,6 @@ app.post('/getEntries', function(req, res) {
 
 app.listen(5050, function() {
     console.log('Server running at http://127.0.0.1:5050/');
+    exec('open http://127.0.0.1:5050/');
 });
 
