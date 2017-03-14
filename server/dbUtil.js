@@ -14,7 +14,7 @@ module.exports = {
     },
 
     readTable: function(table, callback) {
-        fs.readFile('../db/' + table + '.json', 'utf8', function (err,data) {
+        fs.readFile('db/' + table + '.json', 'utf8', function (err,data) {
             if(err) {
                 console.log(err);
                 callback('');
@@ -25,7 +25,7 @@ module.exports = {
     }, 
 
     writeTable: function(table, data, callback) {
-        fs.writeFile('../db/' + table + '.json', data, function(err) {
+        fs.writeFile('db/' + table + '.json', data, function(err) {
             if(err) {
                 console.log(err);
             }
@@ -61,7 +61,7 @@ module.exports = {
         });
     },
 
-    updatePartialy: function(table, recordset, callback) {
+    updatePartially: function(table, recordset, callback) {
         var self = this;
         this.readTable(table, function(tableData) {
             tableData = (tableData.length>0)?JSON.parse(tableData):tableData;
@@ -71,6 +71,7 @@ module.exports = {
             _.each(tableData, function(row) {
                 if(recordset._id == row._id) {
                     for (key in recordset) {
+                        console.log(key);
                         if(key != "_id")
                             row[key] = recordset[key];
                     }
@@ -89,6 +90,29 @@ module.exports = {
             self.writeTable(table, JSON.stringify(tableData), callback);
         });
     },
+
+
+    searchRecords: function(table, data, constraint, callback) {
+        var bookData = new Array();
+        this.readTable(table, function(tableData) {
+            bookData = (tableData.length>0)?JSON.parse(tableData):bookData;
+            var filteredData = _.where(bookData,constraint);
+            if(!_.isEmpty(data)) {
+                filteredData = _.filter(filteredData, function(row) {            
+                    for (key in row) {
+                        if(data[key]!=undefined) {
+                            var searchExp = new RegExp(data[key],"ig");
+                            if((((row[key]).toString().toLowerCase()).indexOf((data[key]).toLowerCase()))>=0) {
+                                return true;
+                                break;
+                            }
+                        }
+                    }
+                });
+            }
+            callback(filteredData);
+        });
+    }
 
 
 }

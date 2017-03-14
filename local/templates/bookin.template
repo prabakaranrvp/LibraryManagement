@@ -1,0 +1,149 @@
+<script>
+    var upKey = 38, downKey = 40, enterKey = 13;
+    var currAvailability = 1;
+    (function() {
+        var entryID = window.location.hash.split("/")[1];
+        if(entryID!=undefined){
+            getEntryDetail({book_id : entryID.trim()});
+        }
+
+        $('#returndate')[0].valueAsDate = new Date();
+        $('#returndate').attr('max',$('#returndate').val());
+        $('#ul-book-search').on('click', 'li', function() {
+            $('#_id').val(this.id);
+            $('#name').val('').trigger('keyup').val(this.innerHTML);
+            console.log('ok');
+            getEntryDetail({id : this.id});
+        });
+        function getEntryDetail(constraint) {
+            // constraint = entry_ID.trim();
+            console.log(constraint);
+            $.post('/getEntry',constraint,function(data) {
+                console.log(data);
+                for (key in data) {
+                    if(key!='status') {
+                        $("input[name='" + key + "']").val(data[key]);
+                        $('div#'+key).html(data[key]);
+                    }
+                }
+                $("#book_id").val(data['book_id']);
+            });
+        }
+        $('#name').keyup(function(e){
+            e.preventDefault();
+            var currActive = $('.list-group-item.current');
+            var currActiveIndex = $(currActive).index();
+            var bookName = $(this).val();
+            var postData = {name :  bookName};
+
+            if(e.keyCode == downKey) {
+                $('.current').removeClass('current');
+                $('.list-group-item').eq(currActiveIndex+1).addClass('current');
+            }
+            else if(e.keyCode == upKey) {
+                $('.current').removeClass('current');
+                $('.list-group-item').eq(currActiveIndex-1).addClass('current');
+            }
+            else if(e.keyCode == enterKey) {
+                $('.current').trigger('click');
+            }
+            else if (postData.name != "") {
+                $.post('/searchEntry',postData, function(data) {
+                    if (data.length > 0) {
+                        $('.list-group').removeClass('hide').empty();
+                        for(var i=0; i<data.length; i++) {
+                            var button = document.createElement('li');
+                            button.className = 'list-group-item';
+                            button.innerHTML = data[i]['name'] + '-' + data[i]['refnm'];
+                            button.id = data[i]['_id'];
+                            $('.list-group').append(button);
+                        } 
+                        $('.list-group-item').hover(function() {
+                            $('.current').removeClass('current');
+                            $(this).addClass('current');
+                        });
+                        
+                    }
+                    else {
+                        $(".list-group").addClass("hide");
+                    }
+                });
+            }
+            else {
+                $(".list-group").addClass("hide");
+            }
+        });
+
+        $("#frm-entry-insert").submit(function(event){
+            event.preventDefault();
+            var bookName = $('#name').val(),  studentName = $('#refnm').html();
+            $("#updated_date").val((new Date()).toString());
+            returndate = new Date($('#returndate').val());
+            var postData = $("#frm-entry-insert").serializeArray();
+            postData = _.without(postData,_.findWhere(postData,{name:"returndate"}));
+            postData.push({
+                name: "returndate",
+                value : returndate.toString()
+            });
+            $.post('/entryUpdate', postData, function() {
+                console.log('data ok');
+                $.notify({
+                    title : "<i class='fa fa-check-circle' aria-hidden='true'></i> <strong>Success!</strong>",
+                    message : '"' + bookName + '" receive from ' + studentName + ' is recorded'
+                },{type : "success"});
+                $("#frm-entry-insert")[0].reset();
+                $('#returndate')[0].valueAsDate = new Date();
+            });
+            
+        });
+    })();
+</script>
+
+<div class="body-panel">
+    <!-- <h2>Insert New Book Info</h2> -->
+    <div class="form-holder">
+        <form action="http://localhost:5050/entry" method="POST" id="frm-entry-insert" class="form-horizontal">
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="name">Book Title</label>
+                <div class="col-sm-8">
+                <input type="text" id="name" name="name" class="form-control" autocomplete='off' />
+                <ul class="list-group" id="ul-book-search"></ul>
+                <input type="hidden" name="book_id" id="book_id" value=""/>
+                <input type="hidden" name="_id" id="_id" value=""/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="returndate">Return Date</label>
+                <div class="col-sm-8">
+                    <input type="date" name="returndate" id="returndate" class="form-control"/>
+                </div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="entryfor">Entry Type</label>
+                <div class="col-sm-8 content-label" id="entryfor"></div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="refid">ID</label>
+                <div class="col-sm-8 content-label" id="refid"></div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="refnm">Name</label>
+                <div class="col-sm-8 content-label" id="refnm"></div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="standard">Standard</label>
+                <div class="col-sm-8 content-label" id="standard"></div>
+            </div>
+            <div class="control form-group">
+                <label class="col-sm-3 control-label" for="section">Section</label>
+                <div class="col-sm-8 content-label" id="section"></div>
+            </div>
+            <div class="control form-group text-right div-btn-group">
+                <input type="hidden" name="updated_date" id="updated_date" value="">
+                <input type='hidden' name='status' value='closed' />
+                <input id="btn-reset" class="btn btn-grey" type="reset"/>
+                <input id="btn-submit" class="btn btn-primary" type="submit"/>
+            </div>
+        </form>
+    </div>
+</div>

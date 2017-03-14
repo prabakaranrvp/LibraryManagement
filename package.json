@@ -4,7 +4,7 @@
   "description": "A simple Library Management using NodeJS",
   "main": "server/app.js",
   "scripts": {
-    "init": "node server/app.js"
+    "start": "node server/app.js"
   },
   "repository": {
     "type": "git",

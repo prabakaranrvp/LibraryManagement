@@ -323,3 +323,17 @@ td .fa-trash {
 .edit-search-container #ul-book-search {
     width: 99%;
 }
+
+.form-horizontal div.content-label {
+    padding-top: 7px;
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.tr-available-N .fa-sign-in {
+    display: none;
+}
+
+.tr-available-Y .fa-book {
+    display: none;
+}

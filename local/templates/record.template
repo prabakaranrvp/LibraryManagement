@@ -1,21 +1,33 @@
 <script>
     var upKey = 38, downKey = 40, enterKey = 13;
-    var currAvailability = 1;
     (function() {
+        var bookId = window.location.hash.split("/")[1];
+        if(bookId!=undefined){
+            getBookDetail(bookId);
+        }
         $('#bookdate')[0].valueAsDate = new Date();
         $('#bookdate').attr('max',$('#bookdate').val());
         $('#ul-book-search').on('click', 'li', function() {
-            $('#book_id').val(this.id);
-            $('#name').val('').trigger('keyup').val(this.innerHTML);
-            currAvailability = $(this).attr('data-availablity');
-            $('#refid').focus();
+            getBookDetail(this.id);
         });
+        function getBookDetail(book_ID) {
+            book_ID = book_ID.trim();
+            console.log(book_ID);
+            $.post('/getBook',{id : book_ID},function(data) {
+                console.log(data);
+                $("#book_id").val(data['_id']);
+                $("#name").val('').trigger('keyup').val(data['name']);
+                $("#isbn").val(data['isbn']);
+                $("#bookid").val(data['bookid']);
+                $('#refid').focus();
+            }); 
+        }
         $('#name').keyup(function(e){
             e.preventDefault();
             var currActive = $('.list-group-item.current');
             var currActiveIndex = $(currActive).index();
             var bookName = $(this).val();
-            var postData = {name :  bookName};
+            var postData = {name :  bookName, available: 'Y'};
 
             if(e.keyCode == downKey) {
                 $('.current').removeClass('current');
@@ -29,7 +41,7 @@
                 $('.current').trigger('click');
             }
             else if (postData.name != "") {
-                $.post('/search',postData, function(data) {
+                $.post('/searchAvailable',postData, function(data) {
                     if (data.length > 0) {
                         $('.list-group').removeClass('hide').empty();
                         for(var i=0; i<data.length; i++) {
@@ -37,7 +49,8 @@
                             button.className = 'list-group-item';
                             button.innerHTML = data[i]['name'];
                             button.id = data[i]['_id'];
-                            $(button).attr('data-availablity', (data[i]['curr_quantity'] || 1));
+                            $(button).attr('data-isbn', data[i]['isbn']);
+                            $(button).attr('data-bookid', data[i]['bookid']);
                             $('.list-group').append(button);
                         } 
                         $('.list-group-item').hover(function() {
@@ -73,15 +86,12 @@
                     value : bookDate.toString()
                 });
                 $.post('/entry', postData, function() {
-                    var updateData = {'_id' : $('#book_id').val(), 'curr_quantity' : (parseInt(currAvailability)-1).toString()};
-                    $.post('/updateBook',updateData, function(){
-                        $.notify({
-                            title : "<i class='fa fa-check-circle' aria-hidden='true'></i> <strong>Success!</strong>",
-                            message : 'Entry Created for "' + bookName + '" - ' + studentName
-                        },{type : "success"});
-                        $("#frm-entry-insert")[0].reset();
-                        $('#bookdate')[0].valueAsDate = new Date();
-                    });
+                    $.notify({
+                        title : "<i class='fa fa-check-circle' aria-hidden='true'></i> <strong>Success!</strong>",
+                        message : 'Entry Created for "' + bookName + '" - ' + studentName
+                    },{type : "success"});
+                    $("#frm-entry-insert")[0].reset();
+                    $('#bookdate')[0].valueAsDate = new Date();
                 });
             }
         });
@@ -97,6 +107,8 @@
                 <div class="col-sm-8">
                 <input type="text" id="name" name="name" class="form-control" autocomplete='off' />
                 <ul class="list-group" id="ul-book-search"></ul>
+                <input type="hidden" name="bookid" id="bookid" value=""/>
+                <input type="hidden" name="isbn" id="isbn" value=""/>
                 <input type="hidden" name="book_id" id="book_id" value=""/>
                 </div>
             </div>

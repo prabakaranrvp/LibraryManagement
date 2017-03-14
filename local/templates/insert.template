@@ -21,6 +21,12 @@
     <div class="form-holder">
         <form action="http://localhost:5050/insert" method="POST" id="frm-book-insert" class="form-horizontal">
             <div class="control form-group">
+                <label class="col-sm-3 control-label" for="bookid">Book ID</label>
+                <div class="col-sm-8">
+                <input type="text" name="bookid" id="bookid" class="form-control" />
+                </div>
+            </div>
+            <div class="control form-group">
                 <label class="col-sm-3 control-label" for="name">Book Title</label>
                 <div class="col-sm-8">
                 <input type="text" name="name" id="name" class="form-control" />
@@ -50,13 +56,6 @@
                 <input type="number" name="volume" id="volume" class="form-control"/>
                 </div>
             </div>
-            <div class="control form-group">
-                <label class="col-sm-3 control-label" for="quantity">Total Quantity</label>
-                <div class="col-sm-8">
-                <input type="number" name="quantity" id="quantity" class="form-control"/>
-                </div>
-            </div>
-            <input type="hidden" name="curr_quantity" id="curr_quantity" />
             <input type="hidden" name="created_by" id="created_by" value="Admin" />
             <input type="hidden" name="created_date" id="created_date" />
             <input type="hidden" name="available" id="available" value="Y" />
