@@ -4,6 +4,7 @@ A simple Library Management using NodeJS
 **Configuration**
 
 1. Install NodeJS from http://nodejs.org/
+2. Download this project as ZIP file and extract in your desired location
 2. Go to the **config.json** file and update the local path of the folder
 3. You can also provide the Waiting period for teacher and Stduent seperately in the config.json
 
