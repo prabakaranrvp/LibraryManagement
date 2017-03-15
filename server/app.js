@@ -53,6 +53,30 @@ app.post('/insert', function(req, res) {
     });
 });
 
+//For inserting a book Info
+app.post('/bulkInsert', function(req, res) {
+    // var jsonData = JSON.parse(req.body.bulkData);
+    // db.insert('book', jsonData, function() {
+    //     res.sendStatus(200);
+    // });
+    db.readTable('book', function(tableData) {
+        tableData = (tableData.length>0)?JSON.parse(tableData):tableData;
+        tableData = (tableData.length==undefined)?(new Array()).push(tableData):tableData;
+        var maxId =  Math.floor(Math.random() * (9999 - 1000) + 1000);
+        _.each(tableData, function(row) {
+            var currId = row._id || 0;
+            maxId = (maxId>currId)?maxId:currId+1;
+        });
+        _.each(tableData, function(row) {
+            row._id = row._id || maxId++;
+            row.available = row.available || 'Y';
+        });
+        db.writeTable('book',JSON.stringify(tableData),function() {
+            res.send('ok');
+        })
+    });
+});
+
 
 //For Updating a book Info
 app.post('/edit', function(req, res) {
@@ -185,7 +209,52 @@ app.post('/getEntries', function(req, res) {
 });
 
 app.listen(5050, function() {
+    fs.readFile('bulk.json', 'utf8', function (err,data) {
+        if(err) {
+            console.log(err);
+            
+        }
+
+        if(data.length>0) {
+            data = JSON.parse(data);
+            var jsonData;
+            db.readTable('book', function(tableData) {
+                if(tableData.length>0) {
+                    tableData = JSON.parse(tableData);
+                    jsonData = (tableData.length==undefined)?(new Array()).push(tableData):tableData;
+                }
+                else {
+                    jsonData = new Array();
+                }
+                
+                if(data.length!=undefined) {
+                    jsonData = jsonData.concat(data);
+                }
+                else
+                    jsonData.push(data);
+                var maxId =  Math.floor(Math.random() * (9999 - 1000) + 1000);
+                _.each(jsonData, function(row) {
+                    var currId = row._id || 0;
+                    maxId = (maxId>currId)?maxId:currId+1;
+                });
+                _.each(jsonData, function(row) {
+                    row._id = row._id || maxId++;
+                    row.available = row.available || 'Y';
+                });
+                db.writeTable('book',JSON.stringify(jsonData),function() {
+                    fs.writeFile('bulk.json', '', function(err) {
+                        if(err) {
+                            console.log(err);
+                        }
+                    });
+                })
+            });
+
+        }
+    });
+
     console.log('Server running at http://127.0.0.1:5050/');
-    // exec('open http://127.0.0.1:5050/');
+    exec('open http://127.0.0.1:5050/');
+    exec('start chrome http://127.0.0.1:5050/');
 });
 

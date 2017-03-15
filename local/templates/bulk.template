@@ -1,0 +1,71 @@
+<script>
+    var jsonData;
+    (function() {
+        $("#frm-entry-insert").submit(function(event){
+            event.preventDefault();
+            
+            try {
+                jsonData = $.parseJSON($("#bulk-data").val());
+                for(var i=0;i<jsonData.length;i++) {
+                    if(jsonData[i]['available']==undefined)  
+                        jsonData[i]['available'] = 'Y'  
+                }
+                bootbox.confirm({
+                    title : " <i class='fa fa-info-circle' aria-hidden='true' title='info'></i> Confirm Bulk Insert",
+                    message : "You are tend to insert data in JSON format. This may have duplicate values unattended. Please confirm to proceed",
+                    callback : function(result) {
+                        if(result) {
+                            // insertRoutine(jsonData, function() {
+                            //         $.notify({
+                            //             title : "<i class='fa fa-check-circle' aria-hidden='true'></i> <strong>Success!</strong>",
+                            //             message : 'Books Added'
+                            //         },{type : "success"});
+                            //         $("#bulk-data").val('');
+                                
+                            // })
+                            $.post('/bulkInsert', jsonData, function() {
+                                alert('ok');
+                            });
+                           
+                        }
+                    }
+                });
+                
+            }
+            catch (err){
+                bootbox.alert("The JSON you entered is invalid. Please provide a valid JSON");
+            }
+        });
+    })();
+
+    function insertRoutine(data, callback) {
+        if(data.length==0) {
+            callback();
+        }
+        else {
+            console.log(data.length);
+            var currData = data.splice(0,250);
+            console.log(currData.length);
+            var postData = $("#frm-entry-insert").serializeArray();
+            postData = _.without(postData,_.findWhere(postData,{name:"bulk-data"}));
+            postData.push({
+                name: "bulkData",
+                value : JSON.stringify(currData)
+            });
+            $.post('/bulkInsert', postData, function() {
+                insertRoutine(data,callback);
+            });
+        }
+        
+    }
+</script>
+
+<div>
+    <p>You can create JSON from the Excel here - <a target="blank" href="http://www.convertcsv.com/csv-to-json.htm">http://www.convertcsv.com/csv-to-json.htm</a> </p>
+    <form action="http://localhost:5050/entry" method="POST" id="frm-entry-insert" >
+            <textarea class="form-control" name="bulk-data" id="bulk-data" placeholder="Insert in JSON Format" autofocus></textarea>
+            <div class="btn-holder">
+                <input type="submit" value="Insert" class="btn btn-primary" />
+            </div>
+    </form>    
+</div>

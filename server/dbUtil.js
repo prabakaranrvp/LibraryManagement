@@ -7,7 +7,12 @@ module.exports = {
         var self = this;
         this.readTable(table, function(tableData) {
             jsonData = (tableData.length>0)?JSON.parse(tableData):jsonData;
-            jsonData.push(recordset);
+            console.log("jsonData Length : " + jsonData.length);
+            if(recordset.length!=undefined) {
+                jsonData = jsonData.concat(recordset);
+            }
+            else
+                jsonData.push(recordset);
             jsonData = self.createId(jsonData);
             self.writeTable(table, JSON.stringify(jsonData), callback);
         });

@@ -337,3 +337,16 @@ td .fa-trash {
 .tr-available-Y .fa-book {
     display: none;
 }
+
+.btn-holder {
+    margin-top: 10px;
+    float: right;
+}
+
+#bulk-data {
+    min-height: 300px;
+}
+
+.tr-available-N {
+    background-color: #d6fbd8;
+}

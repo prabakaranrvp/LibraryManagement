@@ -2,7 +2,7 @@
     var books;
     (function lister() {
         $.post('/search',{}, function(data) {
-            var data = _.sortBy(data, 'name');
+            var data = _.sortBy(data, 'bookid');
             books = $.parseJSON(JSON.stringify(data));
             updateCount();
             $("tbody").empty();
