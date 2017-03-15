@@ -8,11 +8,11 @@ A simple Library Management using NodeJS
 3. You can also provide the Waiting period for teacher and Stduent seperately in the config.json
 
 **Bulk Insert**
-1. For bulk insert, prepare the json from http://www.convertcsv.com/csv-to-json.htm
-2. Save the json in **bulk.json** file
-3. Now close and restart the application
-4. You are all set with the new books record
-5. Please refer the sample_excel.xls file. **Note : Do not change the header**
+1. Please refer the sample_excel.xls file. **Note : Do not change the header**
+2. Copy the contents from excel and prepare the json from http://www.convertcsv.com/csv-to-json.htm
+3. Copy the generated JSON format and Save it in **bulk.json** file
+4. Now close command prompt, if opened and restart the application
+5. You are all set with the new books record
 
 **Running the Application**
 1. Open the **application.bat** 
